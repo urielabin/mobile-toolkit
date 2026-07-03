@@ -1,0 +1,76 @@
+# TEMPLATE -- not part of this repo's required checks, never badged as
+# passing. This demonstrates the real shape of a device-backed mobile E2E
+# pipeline (real Android emulator, real Appium server, real Detox build) but
+# is intentionally not wired into the default push/PR path: reliably
+# orchestrating emulator boot + Appium/Detox lifecycle in hosted CI is
+# substantial, flaky-prone engineering effort that's out of scope for a
+# portfolio demo repo. Copy this into your own project and adapt it once
+# you're ready to invest in that infrastructure.
+name: Mobile E2E (template)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  webdriverio-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - run: npm ci
+
+      - name: Build debug APK
+        working-directory: packages/sample-app/android
+        run: ./gradlew assembleDebug
+
+      - name: Run tests on a real Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          working-directory: packages/e2e-webdriverio
+          script: |
+            npx appium &
+            sleep 10
+            npm run test:e2e
+
+  detox-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - run: npm ci
+
+      - name: Build the Detox Android debug + test APKs
+        working-directory: packages/e2e-detox
+        run: npm run test:e2e:build:android
+
+      - name: Run the Detox suite on a real Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          working-directory: packages/e2e-detox
+          script: npm run test:e2e:android

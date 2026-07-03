@@ -1,0 +1,37 @@
+name: Android
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build_debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          working-directory: packages/sample-app
+          bundler-cache: true
+
+      - run: npm ci
+
+      # Unsigned debug build -- no secrets/signing required, genuinely
+      # compiles the real native Android project.
+      - name: Build unsigned debug APK
+        working-directory: packages/sample-app/android
+        run: bundle exec fastlane android build_debug
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/packages/sample-app/Gemfile

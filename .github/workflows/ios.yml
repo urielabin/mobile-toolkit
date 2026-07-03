@@ -1,0 +1,40 @@
+# Real, runnable unsigned simulator build -- kept on manual dispatch rather
+# than every push/PR because macOS GitHub-hosted runners cost far more
+# per-minute than Linux, and this path can't be verified locally without a
+# full Xcode install. Trigger it manually when you want to confirm the iOS
+# native project still builds.
+name: iOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_debug:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          working-directory: packages/sample-app
+          bundler-cache: true
+
+      - run: npm ci
+
+      - name: Install CocoaPods dependencies
+        working-directory: packages/sample-app/ios
+        run: bundle exec pod install
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/packages/sample-app/Gemfile
+
+      # Unsigned simulator build -- no signing/API keys required.
+      - name: Build unsigned simulator app
+        working-directory: packages/sample-app/ios
+        run: bundle exec fastlane ios build_debug
+        env:
+          BUNDLE_GEMFILE: ${{ github.workspace }}/packages/sample-app/Gemfile
