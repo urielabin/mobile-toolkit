@@ -1,0 +1,33 @@
+# Reusable Android lanes — copy this directory into any React Native project.
+# Every lane reads project-specific values from ENV with this sample app's
+# own values as defaults, so adopting it means overriding env vars, not
+# forking the file.
+default_platform(:android)
+
+platform :android do
+  desc "Run JVM/unit tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Unsigned debug build -- no signing/secrets required, safe for any CI"
+  lane :build_debug do
+    gradle(task: "assembleDebug")
+  end
+
+  desc "Upload an internal-track beta. Requires the ADOPTING project's own Play " \
+       "Console service-account JSON (SUPPLY_JSON_KEY) and release signing config -- " \
+       "not provided here."
+  lane :beta do
+    UI.user_error!("Set SUPPLY_JSON_KEY (and release signing) for your project first") unless ENV["SUPPLY_JSON_KEY"]
+    gradle(task: "bundleRelease")
+    upload_to_play_store(track: "internal", json_key: ENV["SUPPLY_JSON_KEY"])
+  end
+
+  desc "Production release. Same credential requirements as :beta, production track."
+  lane :release do
+    UI.user_error!("Set SUPPLY_JSON_KEY (and release signing) for your project first") unless ENV["SUPPLY_JSON_KEY"]
+    gradle(task: "bundleRelease")
+    upload_to_play_store(track: "production", json_key: ENV["SUPPLY_JSON_KEY"])
+  end
+end

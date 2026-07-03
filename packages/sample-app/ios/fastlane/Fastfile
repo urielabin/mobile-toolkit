@@ -1,0 +1,44 @@
+# Reusable iOS lanes — copy this directory into any React Native project.
+# Every lane reads project-specific values from ENV with this sample app's
+# own values as defaults, so adopting it means overriding env vars, not
+# forking the file.
+default_platform(:ios)
+
+SCHEME = ENV["FASTLANE_SCHEME"] || "SampleApp"
+WORKSPACE = ENV["FASTLANE_WORKSPACE"] || "SampleApp.xcworkspace"
+
+platform :ios do
+  desc "Run unit/UI tests via the simulator"
+  lane :test do
+    run_tests(workspace: WORKSPACE, scheme: SCHEME, devices: ["iPhone 15"])
+  end
+
+  desc "Unsigned simulator build -- no signing/API keys required"
+  lane :build_debug do
+    gym(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      sdk: "iphonesimulator",
+      skip_package_ipa: true,
+      skip_codesigning: true,
+      xcargs: "CODE_SIGNING_ALLOWED=NO",
+    )
+  end
+
+  desc "TestFlight beta. Requires the ADOPTING project's own App Store Connect API " \
+       "key (ASC_API_KEY_PATH) and match-managed signing certs -- not provided here."
+  lane :beta do
+    UI.user_error!("Set ASC_API_KEY_PATH (and match signing) for your project first") unless ENV["ASC_API_KEY_PATH"]
+    match(type: "appstore", readonly: true)
+    build_app(workspace: WORKSPACE, scheme: SCHEME)
+    upload_to_testflight(api_key_path: ENV["ASC_API_KEY_PATH"])
+  end
+
+  desc "App Store release. Same credential requirements as :beta."
+  lane :release do
+    UI.user_error!("Set ASC_API_KEY_PATH (and match signing) for your project first") unless ENV["ASC_API_KEY_PATH"]
+    match(type: "appstore", readonly: true)
+    build_app(workspace: WORKSPACE, scheme: SCHEME)
+    upload_to_app_store(api_key_path: ENV["ASC_API_KEY_PATH"])
+  end
+end
