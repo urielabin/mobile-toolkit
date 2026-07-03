@@ -1,0 +1,27 @@
+node_modules/
+dist/
+*.log
+.turbo/
+.DS_Store
+
+# React Native / sample-app
+packages/sample-app/android/app/build/
+packages/sample-app/android/.gradle/
+packages/sample-app/android/local.properties
+packages/sample-app/ios/build/
+packages/sample-app/ios/Pods/
+packages/sample-app/ios/*.xcworkspace/xcuserdata/
+packages/sample-app/**/*.keystore
+packages/sample-app/**/*.p8
+packages/sample-app/**/*.p12
+packages/sample-app/**/*.mobileprovision
+
+# Fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots/
+**/fastlane/test_output/
+
+# Test artifacts
+packages/*/coverage/
+packages/e2e-detox/artifacts/

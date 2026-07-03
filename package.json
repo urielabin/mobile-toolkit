@@ -1,0 +1,26 @@
+{
+  "name": "mobile-toolkit",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "npm@11.5.1",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "turbo run test",
+    "test:sample-app": "turbo run test --filter=@mobile-toolkit/sample-app",
+    "test:webdriverio": "turbo run test --filter=@mobile-toolkit/e2e-webdriverio",
+    "test:detox": "turbo run test --filter=@mobile-toolkit/e2e-detox",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "eslint": "^9.17.0",
+    "globals": "^17.7.0",
+    "turbo": "^2.10.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.2"
+  }
+}
