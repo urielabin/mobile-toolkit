@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "detox"]
+  },
+  "include": ["src/**/*.ts", "e2e/**/*.ts"]
+}
