@@ -21,10 +21,8 @@
     "@wdio/mocha-framework": "^9.4.4",
     "@wdio/spec-reporter": "^9.4.4",
     "@wdio/types": "^9.4.4",
-    "appium": "^2.16.2",
-    "appium-uiautomator2-driver": "^3.9.5",
-    "appium-xcuitest-driver": "^7.29.1",
-    "ts-node": "^10.9.2",
+    "appium": "^3.5.2",
+    "appium-uiautomator2-driver": "^8.0.1",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   }

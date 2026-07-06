@@ -29,8 +29,7 @@ export default tseslint.config(
     files: [
       'packages/sample-app/*.config.js',
       'packages/sample-app/test/mocks/**/*.js',
-      'packages/e2e-detox/.detoxrc.js',
-      'packages/e2e-detox/jest.config.js',
+      'packages/e2e-detox/*.cjs',
     ],
     languageOptions: {
       sourceType: 'commonjs',

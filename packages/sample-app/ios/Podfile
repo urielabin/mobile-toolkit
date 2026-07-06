@@ -30,5 +30,10 @@ target 'SampleApp' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+    # CocoaPods-downloaded frameworks can carry a com.apple.provenance xattr
+    # that codesign rejects ("resource fork, Finder information, or similar
+    # detritus not allowed") -- strip it from the whole Pods sandbox so builds
+    # are reproducible regardless of how/when Pods were fetched.
+    system("xattr -rc \"#{installer.sandbox.root}\"")
   end
 end

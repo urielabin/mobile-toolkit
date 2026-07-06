@@ -10,15 +10,21 @@ WORKSPACE = ENV["FASTLANE_WORKSPACE"] || "SampleApp.xcworkspace"
 platform :ios do
   desc "Run unit/UI tests via the simulator"
   lane :test do
-    run_tests(workspace: WORKSPACE, scheme: SCHEME, devices: ["iPhone 15"])
+    run_tests(workspace: WORKSPACE, scheme: SCHEME, devices: ["iPhone 17"])
   end
 
   desc "Unsigned simulator build -- no signing/API keys required"
   lane :build_debug do
+    # gym's default flow does `xcodebuild archive`, which is device-only --
+    # Xcode has no such thing as a simulator archive, so without
+    # skip_archive it silently falls back to iphoneos. skip_archive switches
+    # gym to a plain `xcodebuild build`, which does respect -sdk iphonesimulator.
     gym(
       workspace: WORKSPACE,
       scheme: SCHEME,
-      sdk: "iphonesimulator",
+      configuration: "Debug",
+      destination: "generic/platform=iOS Simulator",
+      skip_archive: true,
       skip_package_ipa: true,
       skip_codesigning: true,
       xcargs: "CODE_SIGNING_ALLOWED=NO",

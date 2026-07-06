@@ -11,6 +11,7 @@ describe('Login (Detox, gray-box)', () => {
     const { username, password } = invalidCredentials()
     await loginScreen.login(username, password)
 
+    await loginScreen.waitForError()
     await expect(loginScreen.errorMessage).toBeVisible()
   })
 

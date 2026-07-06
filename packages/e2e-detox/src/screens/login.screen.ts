@@ -21,6 +21,14 @@ export class LoginScreen extends BaseScreen {
     return element(by.id('login-error-message'))
   }
 
+  // Detox's idle-sync resolves once the auth timer callback fires, which can
+  // be a beat before React actually commits the resulting setState/re-render
+  // -- so the error text needs its own short poll rather than a bare
+  // `expect(...).toBeVisible()` right after login().
+  async waitForError(timeout = 5_000): Promise<void> {
+    await waitFor(this.errorMessage).toBeVisible().withTimeout(timeout)
+  }
+
   async login(username: string, password: string): Promise<void> {
     await this.usernameInput.typeText(username)
     await this.passwordInput.typeText(password)

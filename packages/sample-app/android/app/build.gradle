@@ -85,6 +85,11 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        // Required for Detox: without this, assembleAndroidTest just builds a
+        // generic empty instrumentation APK that never sends Detox's "ready"
+        // handshake, since DetoxTest.java (below) is never actually invoked.
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments clearPackageData: 'true'
     }
     signingConfigs {
         debug {
@@ -108,6 +113,15 @@ android {
     }
 }
 
+// Detox publishes its native Android artifacts as a local file-based Maven
+// repo bundled directly inside the npm package (node_modules/detox itself),
+// not to Maven Central -- without this, `com.wix:detox:+` silently resolves
+// to nothing usable and Detox/DetoxConfig fail to compile.
+repositories {
+    maven { url "$rootDir/../../../node_modules/detox/Detox-android" }
+    maven { url 'https://jitpack.io' }
+}
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
@@ -117,4 +131,17 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Detox's native Android instrumentation hooks -- required for the
+    // DetoxTest androidTest runner (src/androidTest) to actually exist and
+    // respond to Detox's synchronization handshake.
+    androidTestImplementation('com.wix:detox:+')
+    androidTestImplementation('com.github.wix-incubator:detox-butler:1.0.4')
+    // com.wix:detox transitively pulls an old androidx.test whose manifest
+    // predates the mandatory android:exported attribute (required targeting
+    // API 31+), which fails the manifest merge. Force newer versions that
+    // already declare it.
+    androidTestImplementation('androidx.test:core:1.6.1')
+    androidTestImplementation('androidx.test:runner:1.6.2')
+    androidTestImplementation('androidx.test:rules:1.6.1')
 }
